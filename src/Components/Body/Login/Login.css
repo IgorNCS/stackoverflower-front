@@ -1,0 +1,48 @@
+.ContainerLogin {
+    height: 100vh; /* Define a altura do contêiner para ocupar a altura total da janela */
+    display: flex;
+    justify-content: center; /* Centraliza horizontalmente */
+    align-items: center; /* Centraliza verticalmente */
+    background: #EAF4F4;
+}
+
+.Login {
+    background: #CCE3DE;
+    width: 30vw;
+    height: 40vh;
+    border-radius: 10px;
+    box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.05);
+    display: flex; /* Usar flexbox para alinhar os itens */
+    flex-direction: column; /* Dispor os itens em coluna */
+    justify-content: center; /* Centralizar verticalmente */
+    align-items: center; /* Centralizar horizontalmente */
+}
+
+.Content {
+    width: 80%; /* Ajustar a largura do conteúdo conforme necessário */
+    margin-top: 0px; /* Adicionar margem superior para espaço */
+}
+
+.LoginLogo {
+    width: 150px; /* Ajusta a largura conforme necessário */
+    height: auto;
+     /* Move a imagem para cima */
+    filter: drop-shadow(0px 0px 3px #00ff91); /* Adiciona um efeito de sombra à imagem */
+}
+
+.LogoContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px; /* Move a imagem para cima */
+}
+
+.LogoText {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 5px; /* Ajusta a margem inferior do texto */
+}
+
+.SubText{
+    font-size: 1.5rem;
+}

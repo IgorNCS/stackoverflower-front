@@ -1,0 +1,67 @@
+.ContainerRegister {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #EAF4F4;
+}
+
+.Register {
+    background: #CCE3DE;
+    width: 35vw;
+    height: 60vh;
+    border-radius: 10px;
+    box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.Content {
+    width: 80%;
+    margin-top: 0px;
+}
+
+.RegisterLogo {
+    width: 150px;
+    height: auto;
+    filter: drop-shadow(0px 0px 3px #00ff91); /* Alterado para vermelho */
+}
+
+.LogoContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+    
+}
+
+.LogoText {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.SubText {
+    font-size: 1.5rem;
+}
+
+
+.custom-alert {
+    font-size: 0.8rem; /* Defina o tamanho da fonte desejado */
+    padding: 0.5rem 1rem; /* Ajuste o preenchimento conforme necessário */
+}
+
+.alert-dismissible .btn-close {
+    padding: 0 !important; /* Remover padding */
+
+}
+
+.alert-message {
+    display: flex;
+    justify-content: center; /* Centralizar horizontalmente */
+    align-items: center; /* Centralizar verticalmente */
+    height: 100%; /* Garantir que o texto ocupe toda a altura do Alert */
+}
+

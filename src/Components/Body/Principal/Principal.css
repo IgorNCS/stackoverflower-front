@@ -1,0 +1,94 @@
+.Container {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  /* align-items: center; */
+  background-color: #6B9080;
+
+}
+
+.CardPrincipal {
+  margin-top: 20px;
+  margin-bottom: 0px;
+  width: 50vw;
+  height: 30vh;
+  /* max-height: 50vh; */
+  position: relative;
+  /* overflow: hidden; */
+}
+
+
+.CardImage {
+  height: 30vh;
+  width: auto;
+  /* Permitir que a largura se ajuste automaticamente */
+  max-width: 100%;
+  /* Limitar a largura máxima para evitar esticamento */
+  object-fit: contain;
+  align-items: center;
+  z-index: 1;
+  position: relative;
+}
+
+
+.CardImageBg {
+  min-height: 100%;
+  min-width: 100%;
+  position: absolute;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(90px);
+  opacity: 0.7;
+  overflow: hidden;
+}
+
+
+.CardProfile{
+  padding-top: 10px;
+  padding-left: 10%;
+  padding-right: 10%;
+  text-align: left;
+  display: flex;
+  align-items: center;
+}
+
+.CardImageProfile{
+  height: 40px;
+}
+.CardTextProfile{
+  padding-left: 10px;
+}
+
+.CardText{
+  text-align: justify;
+  padding-left: 20%;
+  padding-right: 20%;
+  font-family: Georgia, serif;
+}
+
+.CardPrincipalNewPost{
+  width: 60%;
+  margin: auto;
+  margin-top: 20px;
+  padding: 15px;
+}
+
+.CardProfilePost{
+  padding-top: 10px;
+  padding-right: 10%;
+  padding-bottom: 10px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  /* font-size: 1rem !important; */
+  font-weight: 600 !important;
+  color: #6B9080 !important;
+  text-decoration: underline;
+}
+
+
