@@ -17,6 +17,10 @@ function Principal(props) {
     const [name, setName] = useState('');
     const [postContent, setPostContent] = useState('');
     const [expanded, setExpanded] = useState(false);
+    const [selectedImages, setSelectedImages] = useState(['']);
+    const [uploadedImageUrl, setUploadedImageUrl] = useState('');
+
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -30,12 +34,49 @@ function Principal(props) {
         setExpanded(!expanded);
     };
 
-    const handlePostSubmit = (event) => {
+    const handlePostSubmit = async (event) => {
         event.preventDefault();
-        // Aqui você pode adicionar a lógica para enviar o post
-        alert('Post enviado!');
-        console.log()
+        const formData = new FormData();
+        console.log(selectedImages); // Verifica o valor de selectedImages antes de forEach
+
+        if (selectedImages) {
+            const imagesArray = Array.from(selectedImages);
+            imagesArray.forEach(image => {
+                formData.append('images', image);
+            });
+        }
+
+        formData.append('content', postContent);
+
+        try {
+            const response = await Axios.post('http://localhost:8000/post/upload', formData);
+            console.log('Post enviado:', response.data);
+            alert('Post enviado com sucesso!');
+        } catch (error) {
+            console.error('Erro ao enviar post:', error);
+            alert('Erro ao enviar post. Por favor, tente novamente.');
+        }
     };
+
+    async function getImage() {
+        try {
+            const response = await Axios.get('http://localhost:8000/up');
+            // setUploadedImageUrl(URL.createObjectURL(response.data));
+            console.log('a')
+            setUploadedImageUrl(response.data);
+            console.log(uploadedImageUrl)
+        } catch (error) {
+            console.error('Erro ao obter a imagem:', error);
+            alert('Erro ao obter a imagem. Por favor, tente novamente.');
+        }
+    }
+
+    // useEffect para chamar a função getImage quando uploadedImageUrl mudar
+    useEffect(() => {
+        getImage();
+    }, [uploadedImageUrl]);
+
+
 
     const cardText = "Some quick example text to build on the card title and make up the bulk of the card's contentSome quick example text to build on the card title and make up the bulk of the card's contentSome quick example text to build on the card title and make up the bulk of the card's contentSome quick example text to build on the card title and make up the bulk of the card's content.";
     const truncatedText = expanded ? cardText : cardText.slice(0, 195);
@@ -52,13 +93,13 @@ function Principal(props) {
                         </div>
 
                     </Card.Title>
-                    <Form onSubmit={handlePostSubmit}>
+                    <Form onSubmit={handlePostSubmit} encType="multipart/form-data">
                         <InputGroup>
                             <Form.Control
                                 as="textarea"
                                 aria-label="With textarea"
                                 style={{ resize: 'none' }}
-                                placeholder='Plante uma ideia, publique um novo Post!'
+                                placeholder="Plante uma ideia, publique um novo Post!"
                                 value={postContent}
                                 onChange={(event) => setPostContent(event.target.value)}
                             />
@@ -66,8 +107,17 @@ function Principal(props) {
                                 Publicar
                             </Button>
                         </InputGroup>
-                        <Form.Control type="file" size="sm" multiple />
+                        <Form.Control
+                            type="file"
+                            size="sm"
+                            multiple
+                            accept="image/*"
+                            onChange={(event) => setSelectedImages(event.target.files)}
+                        />
+
                     </Form>
+
+
 
 
                 </Card>
@@ -112,17 +162,25 @@ function Principal(props) {
                         </Row>
                         <hr />
                         <Form>
-                        <InputGroup>                      
-                                <Form.Control as="textarea" aria-label="With textarea" style={{ resize: 'none' }} placeholder='Comente na publicação'/>
-                            <Button variant="primary">
-                                Comente
-                            </Button>
-                        </InputGroup>
-                                   
+                            <InputGroup>
+                                <Form.Control as="textarea" aria-label="With textarea" style={{ resize: 'none' }} placeholder='Comente na publicação' />
+                                <Button variant="primary">
+                                    Comente
+                                </Button>
+                            </InputGroup>
 
-                    </Form>
+
+                        </Form>
                     </Card.Body>
                 </Card>
+                <button onClick={getImage}>
+                    Obter Imagem
+                </button>
+                {uploadedImageUrl && (
+                    <div className='UploadedImageView'>
+                         <Image src={`http://localhost:8000/uploads\f9223ec10b391a3c4f348f527930dfb410.jpg`} alt="Uploaded Image" style={{ width: '200px' }} />
+                    </div>
+                )}
             </div>
         </div>
     );
