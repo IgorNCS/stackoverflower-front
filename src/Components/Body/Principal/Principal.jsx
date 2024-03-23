@@ -5,6 +5,7 @@ import img2 from '../../../assets/Begin/smelling-plant.jpg';
 import img3 from '../../../assets/Begin/arvore.jpg';
 
 
+
 import './Principal.css';
 import Axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -60,16 +61,15 @@ function Principal(props) {
 
     async function getImage() {
         try {
-            const response = await Axios.get('http://localhost:8000/up');
-            // setUploadedImageUrl(URL.createObjectURL(response.data));
-            console.log('a')
+            const response = await Axios.get('http://localhost:8000/00bb26a91b61f4d05fcc5576b4c215a9.jpg');
+            console.log(response);
             setUploadedImageUrl(response.data);
-            console.log(uploadedImageUrl)
         } catch (error) {
             console.error('Erro ao obter a imagem:', error);
             alert('Erro ao obter a imagem. Por favor, tente novamente.');
         }
     }
+
 
     // useEffect para chamar a função getImage quando uploadedImageUrl mudar
     useEffect(() => {
@@ -178,9 +178,11 @@ function Principal(props) {
                 </button>
                 {uploadedImageUrl && (
                     <div className='UploadedImageView'>
-                         <Image src={`http://localhost:8000/uploads\f9223ec10b391a3c4f348f527930dfb410.jpg`} alt="Uploaded Image" style={{ width: '200px' }} />
+                        <Image src={`http://localhost:8000/00bb26a91b61f4d05fcc5576b4c215a9.jpg`} alt="Uploaded Image" style={{ width: '200px' }} />
                     </div>
                 )}
+
+
             </div>
         </div>
     );
