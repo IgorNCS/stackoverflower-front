@@ -20,12 +20,13 @@ function Principal(props) {
     const [expanded, setExpanded] = useState(false);
     const [selectedImages, setSelectedImages] = useState(['']);
     const [uploadedImageUrl, setUploadedImageUrl] = useState('');
+    const [authToken, setAuthToken] = useState('');
 
 
     const navigate = useNavigate();
 
     useEffect(() => {
-        const authToken = localStorage.getItem('authToken');
+        setAuthToken(localStorage.getItem('authToken'));
         if (authToken) {
             // navigate('/');
         }
@@ -39,18 +40,23 @@ function Principal(props) {
         event.preventDefault();
         const formData = new FormData();
         console.log(selectedImages); // Verifica o valor de selectedImages antes de forEach
-
+        setAuthToken(localStorage.getItem('authToken'));
+        console.log(authToken)
         if (selectedImages) {
             const imagesArray = Array.from(selectedImages);
-            imagesArray.forEach(image => {
-                formData.append('images', image);
+            imagesArray.forEach((image) => {
+                formData.append(`images`, image);
             });
         }
-
         formData.append('content', postContent);
-
+        console.log(formData)
         try {
-            const response = await Axios.post('http://localhost:8000/post/upload', formData);
+            const response = await Axios.post('http://localhost:8000/post/new', formData, {
+                headers: {
+                    'Authorization': `${authToken}`,
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
             console.log('Post enviado:', response.data);
             alert('Post enviado com sucesso!');
         } catch (error) {

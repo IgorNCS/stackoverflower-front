@@ -19,7 +19,7 @@ function Login(props) {
     useEffect(() => {
         const authToken = localStorage.getItem('authToken');
         if (authToken) {
-            navigate('/');
+            // navigate('/');
         }
     }, [navigate]);
 
