@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Card, Col, ListGroup, InputGroup, Row, Image, Collapse, Form, FormLabel } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faImage, faShareSquare } from '@fortawesome/free-regular-svg-icons';
+import { faHeart as faHeartSolid, faImage as faImageSolid, faShareSquare as faShareSquareSolid } from '@fortawesome/free-solid-svg-icons';
 
 function Principal(props) {
     const [email, setEmail] = useState('');
@@ -21,6 +22,10 @@ function Principal(props) {
     const [selectedImages, setSelectedImages] = useState(['']);
     const [uploadedImageUrl, setUploadedImageUrl] = useState('');
     const [authToken, setAuthToken] = useState('');
+    const [isHovered, setIsHovered] = useState(false);
+    const [isHoveredHeart1, setIsHoveredHeart1] = useState(false);
+    const [showReplyForm, setShowReplyForm] = useState(false);
+    const [isFocused, setIsFocused] = useState(false);
 
 
     const navigate = useNavigate();
@@ -34,6 +39,17 @@ function Principal(props) {
 
     const handleExpand = () => {
         setExpanded(!expanded);
+    };
+    const toggleReplyForm = () => {
+        setShowReplyForm(!showReplyForm);
+    };
+
+    const handleFocus = () => {
+        setIsFocused(true);
+    };
+
+    const handleBlur = () => {
+        setIsFocused(false);
     };
 
     const handlePostSubmit = async (event) => {
@@ -72,7 +88,7 @@ function Principal(props) {
             setUploadedImageUrl(response.data);
         } catch (error) {
             console.error('Erro ao obter a imagem:', error);
-            alert('Erro ao obter a imagem. Por favor, tente novamente.');
+            // alert('Erro ao obter a imagem. Por favor, tente novamente.');
         }
     }
 
@@ -84,7 +100,7 @@ function Principal(props) {
 
 
 
-    const cardText = "Some quick example text to build on the card title and make up the bulk of the card's contentSome quick example text to build on the card title and make up the bulk of the card's contentSome quick example text to build on the card title and make up the bulk of the card's contentSome quick example text to build on the card title and make up the bulk of the card's content.";
+    const cardText = "Some quick example text to build on the card title and make up the bulk of the card's contentSome quick example text to build on the card title and make up the bulk of the card's contentSome quick example text to build on the card title and make up the bulk of the card's contentSome quick example text to build on the card title and make up the bulk of the card's content.Some quick example text to build on the card title and make up the bulk of the card's contentSome quick example text to build on the card title and make up the bulk of the card's contentSome quick example text to build on the card title and make up the bulk of the card's contentSome quick example text to build on the card title and make up the bulk of the card's content.";
     const truncatedText = expanded ? cardText : cardText.slice(0, 195);
 
     return (
@@ -128,15 +144,15 @@ function Principal(props) {
 
                 </Card>
                 <Card className='CardPrincipal '>
-                    <Card.Title className='CardProfile'>
-
+                    <Card.Title className='CardProfile' >
                         <Image src={img3} roundedCircle className='CardImageProfile' />
                         <div className='CardTextProfile'>
                             Igão da Massa
                         </div>
+                        <Card.Link href="#" className='CardPlantProfile'>Girassol</Card.Link>
 
                     </Card.Title>
-                    <hr />
+                    <hr style={{ marginTop: '0px' }} />
 
                     <Card.Text className='CardText' >
                         {truncatedText}
@@ -158,33 +174,92 @@ function Principal(props) {
                     <Card.Body className="CardBody">
                         <Row>
                             <Col md={4}>
-                                <Card.Link href="#"><FontAwesomeIcon size='xl' icon={faHeart} style={{ color: '#ff686b' }} /></Card.Link>
+                                <Card.Link href="#"><FontAwesomeIcon
+                                    size='xl'
+                                    icon={isHoveredHeart1 ? faHeartSolid : faHeart}
+                                    onMouseEnter={() => setIsHoveredHeart1(true)}
+                                    onMouseLeave={() => setIsHoveredHeart1(false)}
+                                    style={{ color: '#ff686b' }} /></Card.Link>
 
-                                <Card.Link href="#"><FontAwesomeIcon size='xl' icon={faShareSquare} style={{ color: '#84dcc6' }} /></Card.Link>
+                                <Card.Link href="#"><FontAwesomeIcon size='xl' icon={faShareSquare} style={{ color: '#84dcc6' }} alt="Share" /></Card.Link>
                             </Col>
                             <Col md={{ span: 4, offset: 4 }}>
-                                <Card.Link href="#">Comments</Card.Link>
+                                <Card.Link href="#">Show All Comments</Card.Link>
                             </Col>
                         </Row>
-                        <hr />
-                        <Form>
+
+                        <Form style={{ marginTop: '10px' }}>
                             <InputGroup>
-                                <Form.Control as="textarea" aria-label="With textarea" style={{ resize: 'none' }} placeholder='Comente na publicação' />
+                                <Form.Control as="textarea" aria-label="With textarea" style={{ resize: 'none' }} placeholder='Comente na publicação ' />
                                 <Button variant="primary">
                                     Comente
                                 </Button>
                             </InputGroup>
-
-
                         </Form>
+                        <hr />
+
+                        <Card >
+                            <Card.Header className='CardProfile' style={{ padding: '3px', paddingLeft: '5px' }}>
+                                <Image src={img3} roundedCircle className='CardImageProfile' style={{ height: '30px', padding: '1px' }} /> Igão da Massazz
+                            </Card.Header>
+                            <Card.Body style={{ padding: '5px' }}>
+                                <Card.Text style={{ textAlign: 'justify' }}>
+                                    {truncatedText}
+                                    {cardText.length > 225 && (
+                                        <Button variant="link" onClick={handleExpand}>
+                                            {expanded ? "Show less" : "...Show more"}
+                                        </Button>
+                                    )}
+                                </Card.Text>
+                            </Card.Body>
+                            <Card.Footer className="text-muted d-flex align-items-center  justify-content-between" style={{ padding: '1px', paddingLeft: '5%' }}>
+                                <div>
+                                    <Card.Link href="#">
+                                        <FontAwesomeIcon
+                                            size='xl'
+                                            icon={isHovered ? faHeartSolid : faHeart}
+                                            style={{ color: '#ff686b' }}
+                                            onMouseEnter={() => setIsHovered(true)}
+                                            onMouseLeave={() => setIsHovered(false)}
+                                        />
+                                    </Card.Link>
+                                </div>
+                                <div style={{ width: '90%', padding: '1px' }}>
+                                    <Form
+                                        onFocus={handleFocus}
+                                        onBlur={handleBlur}>
+                                        <InputGroup>
+                                            <Form.Control as="textarea" aria-label="With textarea" style={{ resize: 'none', height: isFocused ? '80px' : '30px' }} placeholder='Responda esse comentario' />
+                                            <Button variant="primary">
+                                                Enviar Resposta
+                                            </Button>
+                                        </InputGroup>
+                                    </Form>
+                                </div>
+                            </Card.Footer>
+
+                        </Card>
+
+
                     </Card.Body>
                 </Card>
+
+
+
+
+
+
+
+
+
+
+
                 <button onClick={getImage}>
                     Obter Imagem
                 </button>
                 {uploadedImageUrl && (
                     <div className='UploadedImageView'>
-                        <Image src={`http://localhost:8000/00bb26a91b61f4d05fcc5576b4c215a9.jpg`} alt="Uploaded Image" style={{ width: '200px' }} />
+                        <Image src={`http://localhost:8000/post/00bb26a91b61f4d05fcc5576b4c215a9.jpg`} alt="Uploaded Image" style={{ width: '200px' }} />
                     </div>
                 )}
 
