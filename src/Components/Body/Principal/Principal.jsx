@@ -26,6 +26,7 @@ function Principal(props) {
     const [isHoveredHeart1, setIsHoveredHeart1] = useState(false);
     const [showReplyForm, setShowReplyForm] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
+    const [isHoveredShare, setIsHoveredShare] = useState(false);
 
 
     const navigate = useNavigate();
@@ -171,6 +172,8 @@ function Principal(props) {
                         <Card.Img src={img2} className='CardImage' />
                     </div>
 
+                    
+
                     <Card.Body className="CardBody">
                         <Row>
                             <Col md={4}>
@@ -181,10 +184,17 @@ function Principal(props) {
                                     onMouseLeave={() => setIsHoveredHeart1(false)}
                                     style={{ color: '#ff686b' }} /></Card.Link>
 
-                                <Card.Link href="#"><FontAwesomeIcon size='xl' icon={faShareSquare} style={{ color: '#84dcc6' }} alt="Share" /></Card.Link>
+                                <Card.Link href="#">
+                                    <FontAwesomeIcon
+                                        size='xl'
+                                        icon={isHoveredShare ? faShareSquareSolid : faShareSquare}
+                                        onMouseEnter={() => setIsHoveredShare(true)}
+                                        onMouseLeave={() => setIsHoveredShare(false)}
+                                        style={{ color: '#84dcc6' }} alt="Share" />
+                                </Card.Link>
                             </Col>
                             <Col md={{ span: 4, offset: 4 }}>
-                                <Card.Link href="#">Show All Comments</Card.Link>
+                                <div className='blockquote-footer'>4 fev, 2024 as 18:30</div>
                             </Col>
                         </Row>
 
@@ -212,7 +222,7 @@ function Principal(props) {
                                     )}
                                 </Card.Text>
                             </Card.Body>
-                            <Card.Footer className="text-muted d-flex align-items-center  justify-content-between" style={{ padding: '1px', paddingLeft: '5%' }}>
+                            <Card.Footer className="text-muted d-flex align-items-center justify-content-between" style={{ padding: '1px', paddingLeft: '5%' }}>
                                 <div>
                                     <Card.Link href="#">
                                         <FontAwesomeIcon
@@ -237,11 +247,12 @@ function Principal(props) {
                                     </Form>
                                 </div>
                             </Card.Footer>
-
                         </Card>
-
-
+                        <div className="d-flex justify-content-end mt-2">
+                            <Card.Link href="#" style={{ textAlign: 'right' }}>Show All Comments</Card.Link>
+                        </div>
                     </Card.Body>
+
                 </Card>
 
 
@@ -254,14 +265,14 @@ function Principal(props) {
 
 
 
-                <button onClick={getImage}>
+                {/* <button onClick={getImage}>
                     Obter Imagem
-                </button>
-                {uploadedImageUrl && (
+                    </button>
+                    {uploadedImageUrl && (
                     <div className='UploadedImageView'>
                         <Image src={`http://localhost:8000/post/00bb26a91b61f4d05fcc5576b4c215a9.jpg`} alt="Uploaded Image" style={{ width: '200px' }} />
                     </div>
-                )}
+                )} */}
 
 
             </div>
