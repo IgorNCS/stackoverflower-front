@@ -16,6 +16,7 @@ import { faHeart, faImage, faShareSquare } from '@fortawesome/free-regular-svg-i
 import { faHeart as faHeartSolid, faImage as faImageSolid, faShareSquare as faShareSquareSolid } from '@fortawesome/free-solid-svg-icons';
 import Carousel from 'react-bootstrap/Carousel';
 import { format } from 'date-fns';
+import { comment } from 'fontawesome';
 
 
 function Principal(props) {
@@ -38,9 +39,11 @@ function Principal(props) {
 
 
     const [commentContent, setCommentContent] = useState({});
-    const [showComments, setShowComments] = useState();
+    const [showComments, setShowComments] = useState([]);
 
-    const [showAllComments, setShowAllComments] = useState({});
+    useEffect(() => {
+        getAllPosts()
+    }, [])
 
 
 
@@ -116,20 +119,15 @@ function Principal(props) {
         event.preventDefault();
         const formData = new FormData();
         const authToken = localStorage.getItem('authToken');
-        console.log(authToken);
-
-        formData.append('content', commentContent[elementId]);
-        formData.append('postId', elementId);
-
-        console.log(elementId)
 
         try {
-            await Axios.post('http://localhost:8000/post/new', formData, {
+
+            await Axios.post('http://localhost:8000/comment/new', { content: commentContent[elementId], postId: elementId }, {
                 headers: {
                     'Authorization': `${authToken}`
                 },
             });
-            alert('Comentário enviado com sucesso!');
+            setCommentContent({ ...commentContent, [elementId]: '' });
         } catch (error) {
             console.error('Erro ao enviar comentário:', error);
             alert('Erro ao enviar comentário. Por favor, tente novamente.');
@@ -147,26 +145,38 @@ function Principal(props) {
         // }
     }
 
-    const showLessComments = () => {
+    const showLessComments = (elementId) => {
         const decreaseBy = 3; // Quantidade para diminuir, pode ser ajustado conforme necessário
         const minShowComments = 1; // Valor mínimo para showComments
 
-        if (showComments > minShowComments) {
-            // Calcula o novo valor de showComments, garantindo que não seja menor que o mínimo
-            const newShowComments = Math.max(showComments - decreaseBy, minShowComments);
-            setShowComments(newShowComments);
-        }
-    };
-
-    const showMoreComments = () => {
-        setShowComments(showComments + 3);
+        // Calcula o novo valor de showComments, garantindo que não seja menor que o mínimo
+        const newShowComments = Math.max(showComments - decreaseBy, minShowComments);
+        console.log('clicou1')
+        setShowComments({
+            ...showComments,
+            [elementId]: newShowComments
+        })
 
     };
+
+    const showMoreComments = (commentSize, elementId) => {
+        const increaseBy = 3; // Quantidade para aumentar, pode ser ajustado conforme necessário
+
+        // Calcula o novo valor de showComments, garantindo que não seja maior que commentSize
+        const newShowComments = Math.min(showComments + increaseBy, commentSize);
+
+        // Atualiza o estado para mostrar mais comentários
+        setShowComments({
+            ...showComments,
+            [elementId]: newShowComments
+        })
+
+    };
+
 
     async function getAllPosts() {
         try {
             const response = await Axios.get('http://localhost:8000/post/all');
-            console.log(response.data);
             setPostReceived(response.data);
         } catch (error) {
             console.error('Erro ao obter a imagem:', error);
@@ -186,6 +196,20 @@ function Principal(props) {
             [postId]: !expandedPosts[postId] // Alterna entre true e false para o postId fornecido
         });
     };
+
+    const FormComment = ({ onFocus, onBlur, isFocused }) => (
+        <Form
+            onFocus={onFocus}
+            onBlur={onBlur}>
+            <InputGroup>
+                <Form.Control as="textarea" aria-label="With textarea" style={{ resize: 'none', height: isFocused ? '80px' : '30px' }} placeholder='Responda esse comentario' />
+                <Button variant="primary">
+                    Enviar Resposta
+                </Button>
+            </InputGroup>
+        </Form>
+    );
+
 
 
 
@@ -366,11 +390,10 @@ function Principal(props) {
                             <hr style={{ marginTop: '0px' }} />
 
                             <Card.Text className='CardText' >
-                                {console.log(index, expandedPosts[element._id])}
                                 {element.text && (
                                     expandedPosts[element._id] ? element.text : element.text.slice(0, 215)
                                 )}
-                                {element.text && element.text.length > 215 && ( 
+                                {element.text && element.text.length > 215 && (
                                     <Button variant="link" onClick={() => handleTextExpand(element._id)}>
                                         {expandedPosts[element._id] ? "Show less" : "... Show more"}
                                     </Button>
@@ -450,7 +473,7 @@ function Principal(props) {
                                             as="textarea"
                                             aria-label="With textarea"
                                             style={{ resize: 'none' }}
-                                            placeholder="Comente na publicação "
+                                            placeholder="Comente na publicaçãoa "
                                             value={commentContent[element._id]}
                                             onChange={(event) => setCommentContent({ ...commentContent, [element._id]: event.target.value })}
                                         />
@@ -459,32 +482,22 @@ function Principal(props) {
                                         </Button>
                                     </InputGroup>
                                 </Form>
-                                {/* <Form style={{ marginTop: '10px' }}>
-                                    <InputGroup>
-                                        <Form.Control as="textarea" aria-label="With textarea" style={{ resize: 'none' }} placeholder='Comente na publicação ' />
-                                        <Button variant="primary">
-                                            Comente
-                                        </Button>
-                                    </InputGroup>
-                                </Form> */}
+
 
 
                                 {element.comments.length > 0 && (
                                     <hr />
                                 )}
-                                <hr />
 
-
-                                {element.comments.map((comment, index) => (
-                                    <div>
-                                        {console.log(comment,'za')}
-                                        <Card>
-                                            <Card.Header className='CardProfile' style={{ padding: '3px', paddingLeft: '5px' }}>
+                                {element.comments.slice(0, showComments[element._id]).map((comment, index) => (
+                                    <div key={comment._id}>
+                                        <Card style={{ marginBottom: '15px' }}>
+                                            <Card.Header className='CardProfile' style={{ padding: '3px', paddingLeft: '15px' }}>
                                                 <Image
                                                     src={comment.authorCommentImage ? `http://localhost:8000/post/${comment.authorCommentImage}` : imgDefaultUser}
                                                     roundedCircle
                                                     className='CardImageProfile'
-                                                    style={{ height: '30px', padding: '1px' }}
+                                                    style={{ height: '30px', padding: '1px', marginRight: '5px' }}
                                                 />
                                                 {comment.authorCommentName}
                                             </Card.Header>
@@ -531,11 +544,9 @@ function Principal(props) {
                                                     </Card.Link>
                                                 </div>
                                                 <div style={{ width: '90%', padding: '1px' }}>
-                                                    <Form
-                                                        onFocus={handleFocusResponse}
-                                                        onBlur={handleBlurResponse}>
+                                                    <Form>
                                                         <InputGroup>
-                                                            <Form.Control as="textarea" aria-label="With textarea" style={{ resize: 'none', height: isFocused[comment.id] ? '80px' : '30px' }} placeholder='Responda esse comentario' />
+                                                            <Form.Control as="textarea" aria-label="With textarea" style={{ resize: 'none', height: '30px' }} placeholder='Responda esse comentario' />
                                                             <Button variant="primary">
                                                                 Enviar Resposta
                                                             </Button>
@@ -547,66 +558,31 @@ function Principal(props) {
 
                                     </div>
                                 ))}
+    {showComments[element._id]}aaaaaaaaaaa{showComments[element._id]}
+                                <div className="d-flex justify-content-end">
 
-                                <div className="d-flex justify-content-end mt-2">
-                                    {element.comments.length > 1 && element.comments.length <= showComments && (
-                                        <Card.Link href="#" style={{ textAlign: 'right' }} onClick={showLessComments}>Less Comments</Card.Link>
-                                    )}
-                                    {element.comments.length > 1 && element.comments.length < showComments && (
-                                        <Card.Link href="#" style={{ textAlign: 'right' }} onClick={showMoreComments}>More Comments</Card.Link>
+                                    {element.comments.length > 1 && 1 < showComments[element._id] && (
+                                        <Button variant="link" onClick={() => {
+                                            setShowComments({
+                                                ...showComments,
+                                                [element._id]: 1
+                                            })
+                                        }} style={{ marginRight: 'auto' }}>
+                                            Close Comments
+                                        </Button>
                                     )}
 
+                                        <Button variant="link" onClick={() => {showLessComments(element._id)}}>
+                                            show less
+                                        </Button>
+                                    {/* {element.comments.length > 1 && 1 < showComments[element._id] && (
+                                    )} */}
+                                    {element.comments.length > 0 && element.comments.length > showComments[element._id] && (
+                                        <Button variant="link" onClick={() => { showMoreComments(element.comments.length,element._id) }}>
+                                            show more
+                                        </Button>
+                                    )}
                                 </div>
-
-
-                                <Card >
-
-                                    <Card.Header className='CardProfile' style={{ padding: '3px', paddingLeft: '5px' }}>
-                                        <Image src={img3} roundedCircle className='CardImageProfile' style={{ height: '30px', padding: '1px' }} /> Igão da Massazz
-                                    </Card.Header>
-                                    <Card.Body style={{ padding: '5px' }}>
-                                        <Card.Text style={{ textAlign: 'justify' }}>
-                                            {truncatedText}
-                                            {cardText.length > 225 && (
-                                                <Button variant="link" onClick={handleExpand}>
-                                                    {expanded ? "Show less" : "...Show more"}
-                                                </Button>
-                                            )}
-                                        </Card.Text>
-                                    </Card.Body>
-
-                                    <Card.Footer className="text-muted d-flex align-items-center justify-content-between" style={{ padding: '1px', paddingLeft: '5%' }}>
-                                        <div>
-                                            <Card.Link href="#">
-                                                <FontAwesomeIcon
-                                                    size='xl'
-                                                    icon={isHovered ? faHeartSolid : faHeart}
-                                                    style={{ color: '#ff686b' }}
-                                                    onMouseEnter={() => setIsHovered(true)}
-                                                    onMouseLeave={() => setIsHovered(false)}
-                                                />
-                                            </Card.Link>
-                                        </div>
-                                        <div style={{ width: '90%', padding: '1px' }}>
-                                            <Form
-                                                onFocus={handleFocus}
-                                                onBlur={handleBlur}>
-                                                <InputGroup>
-                                                    <Form.Control as="textarea" aria-label="With textarea" style={{ resize: 'none', height: isFocused ? '80px' : '30px' }} placeholder='Responda esse comentario' />
-                                                    <Button variant="primary">
-                                                        Enviar Resposta
-                                                    </Button>
-                                                </InputGroup>
-                                            </Form>
-                                        </div>
-                                    </Card.Footer>
-                                </Card>
-
-                                {element.comments.length > 1 && (
-                                    <div className="d-flex justify-content-end mt-2">
-                                        <Card.Link href="#" style={{ textAlign: 'right' }} onClick={() => setShowAllComments(true)}>Show All Comments</Card.Link>
-                                    </div>
-                                )}
                             </Card.Body>
 
                         </Card>
