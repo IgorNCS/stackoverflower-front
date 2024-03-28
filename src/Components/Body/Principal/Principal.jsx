@@ -145,33 +145,81 @@ function Principal(props) {
         // }
     }
 
+    // const showLessComments = (elementId) => {
+    //     const decreaseBy = 3; // Quantidade para diminuir, pode ser ajustado conforme necessário
+    //     const minShowComments = 1; // Valor mínimo para showComments
+
+    //     // Calcula o novo valor de showComments, garantindo que não seja menor que o mínimo
+    //     const newShowComments = Math.max(showComments - decreaseBy, minShowComments);
+    //     console.log('clicou1')
+    //     setShowComments({
+    //         ...showComments,
+    //         [elementId]: newShowComments
+    //     })
+
+    // };
+
+    // const showMoreComments = (commentSize, elementId) => {
+    //     const increaseBy = 3; // Quantidade para aumentar, pode ser ajustado conforme necessário
+
+    //     // Calcula o novo valor de showComments, garantindo que não seja maior que commentSize
+    //     const newShowComments = Math.min(showComments + increaseBy, commentSize);
+
+    //     // Atualiza o estado para mostrar mais comentários
+    //     setShowComments({
+    //         ...showComments,
+    //         [elementId]: newShowComments
+    //     })
+
+    // };
+
+
     const showLessComments = (elementId) => {
         const decreaseBy = 3; // Quantidade para diminuir, pode ser ajustado conforme necessário
         const minShowComments = 1; // Valor mínimo para showComments
+        const currentComments = showComments[elementId]; // Obtem o valor atual de showComments
 
         // Calcula o novo valor de showComments, garantindo que não seja menor que o mínimo
-        const newShowComments = Math.max(showComments - decreaseBy, minShowComments);
-        console.log('clicou1')
+        const newShowComments = Math.max(currentComments - decreaseBy, minShowComments);
         setShowComments({
             ...showComments,
             [elementId]: newShowComments
-        })
-
+        });
     };
 
     const showMoreComments = (commentSize, elementId) => {
         const increaseBy = 3; // Quantidade para aumentar, pode ser ajustado conforme necessário
+        const currentComments = showComments[elementId]; // Obtem o valor atual de showComments
 
         // Calcula o novo valor de showComments, garantindo que não seja maior que commentSize
-        const newShowComments = Math.min(showComments + increaseBy, commentSize);
-
-        // Atualiza o estado para mostrar mais comentários
+        const newShowComments = Math.min(currentComments + increaseBy, commentSize);
         setShowComments({
             ...showComments,
             [elementId]: newShowComments
-        })
-
+        });
     };
+
+    useEffect(() => {
+        const initialShowComments = {}; // Inicializa um objeto para guardar os valores de showComments
+        postReceived.forEach((element) => {
+            initialShowComments[element._id] = 1; // Define o valor inicial de showComments para cada elemento como 1
+        });
+        setShowComments(initialShowComments); // Define o estado showComments com os valores iniciais
+    }, [postReceived]); // Executa este efeito sempre que postReceived mudar
+
+
+    // useEffect(() => {
+    //     postReceived.map((element, index) => {
+    //         const initialShowComments = {}
+    //         setShowComments({
+    //             ...showComments,
+    //             [element._id]: 1
+    //         });
+    //         console.log(showComments[element._id])
+    //         console.log(element._id)
+    //     })
+    //     // Inicializa showComments com 1 para cada elemento
+    // }, [postReceived,]);
 
 
     async function getAllPosts() {
@@ -183,6 +231,8 @@ function Principal(props) {
             // alert('Erro ao obter a imagem. Por favor, tente novamente.');
         }
     }
+
+
 
 
     // useEffect para chamar a função getImage quando uploadedImageUrl mudar
@@ -489,9 +539,10 @@ function Principal(props) {
                                     <hr />
                                 )}
 
-                                {element.comments.slice(0, showComments[element._id]).map((comment, index) => (
+                                {element.comments.map((comment, index) => (
                                     <div key={comment._id}>
-                                        <Card style={{ marginBottom: '15px' }}>
+                                        {index < showComments[element._id] && (
+                                            <Card style={{ marginBottom: '15px' }}>
                                             <Card.Header className='CardProfile' style={{ padding: '3px', paddingLeft: '15px' }}>
                                                 <Image
                                                     src={comment.authorCommentImage ? `http://localhost:8000/post/${comment.authorCommentImage}` : imgDefaultUser}
@@ -555,10 +606,11 @@ function Principal(props) {
                                                 </div>
                                             </Card.Footer>
                                         </Card>
+                                        )}
+                                        
 
                                     </div>
                                 ))}
-    {showComments[element._id]}aaaaaaaaaaa{showComments[element._id]}
                                 <div className="d-flex justify-content-end">
 
                                     {element.comments.length > 1 && 1 < showComments[element._id] && (
@@ -572,13 +624,13 @@ function Principal(props) {
                                         </Button>
                                     )}
 
-                                        <Button variant="link" onClick={() => {showLessComments(element._id)}}>
-                                            show less
-                                        </Button>
+                                    <Button variant="link" onClick={() => { showLessComments(element._id) }}>
+                                        show less
+                                    </Button>
                                     {/* {element.comments.length > 1 && 1 < showComments[element._id] && (
                                     )} */}
                                     {element.comments.length > 0 && element.comments.length > showComments[element._id] && (
-                                        <Button variant="link" onClick={() => { showMoreComments(element.comments.length,element._id) }}>
+                                        <Button variant="link" onClick={() => { showMoreComments(element.comments.length, element._id) }}>
                                             show more
                                         </Button>
                                     )}
