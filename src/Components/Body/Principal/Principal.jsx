@@ -20,16 +20,12 @@ import { comment } from 'fontawesome';
 
 
 function Principal(props) {
-    const [email, setEmail] = useState('');
-    const [name, setName] = useState('');
     const [postContent, setPostContent] = useState('');
     const [expanded, setExpanded] = useState(false);
     const [selectedImages, setSelectedImages] = useState(['']);
-    const [uploadedImageUrl, setUploadedImageUrl] = useState('');
     const [authToken, setAuthToken] = useState('');
     const [isHovered, setIsHovered] = useState(false);
     const [isHoveredHeart1, setIsHoveredHeart1] = useState(false);
-    const [showReplyForm, setShowReplyForm] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
     const [isHoveredShare, setIsHoveredShare] = useState(false);
 
@@ -39,13 +35,24 @@ function Principal(props) {
 
 
     const [commentContent, setCommentContent] = useState({});
-    const [showComments, setShowComments] = useState([]);
+    const [showComments, setShowComments] = useState({});
 
     useEffect(() => {
         getAllPosts()
     }, [])
 
-
+    useEffect(() => {
+        // Verifica se showComments já está definido
+        if (Object.keys(showComments).length === 0) {
+            const initialShowComments = {}; // Inicializa um objeto vazio
+            postReceived.forEach((element) => {
+                initialShowComments[element._id] = 1; // Define o valor inicial de showComments para cada elemento como 1
+            });
+            setShowComments(initialShowComments); // Define o estado showComments com os valores iniciais
+        }
+    }, [postReceived, showComments]); // Executa este efeito sempre que postReceived ou showComments mudarem
+     // Executa este efeito sempre que postReceived mudar
+    
 
 
     const navigate = useNavigate();
@@ -60,9 +67,7 @@ function Principal(props) {
     const handleExpand = () => {
         setExpanded(!expanded);
     };
-    const toggleReplyForm = () => {
-        setShowReplyForm(!showReplyForm);
-    };
+
 
     const handleFocus = () => {
         setIsFocused(true);
@@ -70,20 +75,6 @@ function Principal(props) {
 
     const handleBlur = () => {
         setIsFocused(false);
-    };
-
-    const handleFocusResponse = (commentId) => {
-        setIsFocused({
-            ...isFocused,
-            [commentId]: true // Alterna entre true e false para o postId fornecido
-        });
-    };
-
-    const handleBlurResponse = (commentId) => {
-        setIsFocused({
-            ...isFocused,
-            [commentId]: false // Alterna entre true e false para o postId fornecido
-        });
     };
 
     const handlePostSubmit = async (event) => {
@@ -117,61 +108,44 @@ function Principal(props) {
 
     const handlePostCommentSubmit = async (event, elementId) => {
         event.preventDefault();
-        const formData = new FormData();
         const authToken = localStorage.getItem('authToken');
-
+    
         try {
-
-            await Axios.post('http://localhost:8000/comment/new', { content: commentContent[elementId], postId: elementId }, {
+            // Enviar o novo comentário para o servidor
+            const commentResponse = await Axios.post('http://localhost:8000/comment/new', { content: commentContent[elementId], postId: elementId }, {
                 headers: {
                     'Authorization': `${authToken}`
                 },
             });
-            setCommentContent({ ...commentContent, [elementId]: '' });
+    
+            const oldShowComments = showComments[elementId] || 0;
+    
+            console.log(commentResponse.data);
+    
+            // Atualizar postReceived
+            setPostReceived(postReceived.map(post =>
+                post._id === elementId ? commentResponse.data : post
+            ));
+    
+            // Atualizar o valor de showComments para incluir o número de novos comentários
+            setShowComments({
+                ...showComments,
+                [elementId]: commentResponse.data.comments.length
+            });
+
+            console.log(showComments[elementId]+'x'+commentResponse.data.comments.length)
+            
+    
+            // Limpar o conteúdo do comentário
         } catch (error) {
             console.error('Erro ao enviar comentário:', error);
             alert('Erro ao enviar comentário. Por favor, tente novamente.');
         }
     };
+    
 
-    async function getImage() {
-        // try {
-        //     const response = await Axios.get('http://localhost:8000/00bb26a91b61f4d05fcc5576b4c215a9.jpg');
-        //     console.log(response.data);
-        //     setPostReceived(response.data);
-        // } catch (error) {
-        //     console.error('Erro ao obter a imagem:', error);
-        //     // alert('Erro ao obter a imagem. Por favor, tente novamente.');
-        // }
-    }
 
-    // const showLessComments = (elementId) => {
-    //     const decreaseBy = 3; // Quantidade para diminuir, pode ser ajustado conforme necessário
-    //     const minShowComments = 1; // Valor mínimo para showComments
 
-    //     // Calcula o novo valor de showComments, garantindo que não seja menor que o mínimo
-    //     const newShowComments = Math.max(showComments - decreaseBy, minShowComments);
-    //     console.log('clicou1')
-    //     setShowComments({
-    //         ...showComments,
-    //         [elementId]: newShowComments
-    //     })
-
-    // };
-
-    // const showMoreComments = (commentSize, elementId) => {
-    //     const increaseBy = 3; // Quantidade para aumentar, pode ser ajustado conforme necessário
-
-    //     // Calcula o novo valor de showComments, garantindo que não seja maior que commentSize
-    //     const newShowComments = Math.min(showComments + increaseBy, commentSize);
-
-    //     // Atualiza o estado para mostrar mais comentários
-    //     setShowComments({
-    //         ...showComments,
-    //         [elementId]: newShowComments
-    //     })
-
-    // };
 
 
     const showLessComments = (elementId) => {
@@ -199,13 +173,6 @@ function Principal(props) {
         });
     };
 
-    useEffect(() => {
-        const initialShowComments = {}; // Inicializa um objeto para guardar os valores de showComments
-        postReceived.forEach((element) => {
-            initialShowComments[element._id] = 1; // Define o valor inicial de showComments para cada elemento como 1
-        });
-        setShowComments(initialShowComments); // Define o estado showComments com os valores iniciais
-    }, [postReceived]); // Executa este efeito sempre que postReceived mudar
 
 
     // useEffect(() => {
@@ -226,6 +193,7 @@ function Principal(props) {
         try {
             const response = await Axios.get('http://localhost:8000/post/all');
             setPostReceived(response.data);
+
         } catch (error) {
             console.error('Erro ao obter a imagem:', error);
             // alert('Erro ao obter a imagem. Por favor, tente novamente.');
@@ -234,11 +202,6 @@ function Principal(props) {
 
 
 
-
-    // useEffect para chamar a função getImage quando uploadedImageUrl mudar
-    useEffect(() => {
-        getImage();
-    }, [uploadedImageUrl]);
 
     const handleTextExpand = (postId) => {
         setExpandedPosts({
@@ -517,7 +480,7 @@ function Principal(props) {
                                     </Col>
                                 </Row>
 
-                                <Form onSubmit={(event) => handlePostCommentSubmit(event, element._id)} style={{ marginTop: '10px' }}>
+                                <Form onSubmit={(event) => handlePostCommentSubmit(event, element._id, element.comments.length)} style={{ marginTop: '10px' }}>
                                     <InputGroup>
                                         <Form.Control
                                             as="textarea"
@@ -543,72 +506,72 @@ function Principal(props) {
                                     <div key={comment._id}>
                                         {index < showComments[element._id] && (
                                             <Card style={{ marginBottom: '15px' }}>
-                                            <Card.Header className='CardProfile' style={{ padding: '3px', paddingLeft: '15px' }}>
-                                                <Image
-                                                    src={comment.authorCommentImage ? `http://localhost:8000/post/${comment.authorCommentImage}` : imgDefaultUser}
-                                                    roundedCircle
-                                                    className='CardImageProfile'
-                                                    style={{ height: '30px', padding: '1px', marginRight: '5px' }}
-                                                />
-                                                {comment.authorCommentName}
-                                            </Card.Header>
+                                                <Card.Header className='CardProfile' style={{ padding: '3px', paddingLeft: '15px' }}>
+                                                    <Image
+                                                        src={comment.authorCommentImage ? `http://localhost:8000/post/${comment.authorCommentImage}` : imgDefaultUser}
+                                                        roundedCircle
+                                                        className='CardImageProfile'
+                                                        style={{ height: '30px', padding: '1px', marginRight: '5px' }}
+                                                    />
+                                                    {comment.authorCommentName}
+                                                </Card.Header>
 
-                                            <Card.Body style={{ padding: '5px' }}>
-                                                <Card.Text style={{ textAlign: 'justify' }}>
-                                                    {comment && comment.text && (
-                                                        <>
-                                                            {expandedPosts[comment._id] ? comment.text : comment.text.slice(0, 215)}
-                                                            {comment.text.length > 215 && (
-                                                                <Button variant="link" onClick={() => handleTextExpand(comment._id)}>
-                                                                    {expandedPosts[comment._id] ? "Show less" : "... Show more"}
+                                                <Card.Body style={{ padding: '5px' }}>
+                                                    <Card.Text style={{ textAlign: 'justify' }}>
+                                                        {comment && comment.text && (
+                                                            <>
+                                                                {expandedPosts[comment._id] ? comment.text : comment.text.slice(0, 215)}
+                                                                {comment.text.length > 215 && (
+                                                                    <Button variant="link" onClick={() => handleTextExpand(comment._id)}>
+                                                                        {expandedPosts[comment._id] ? "Show less" : "... Show more"}
+                                                                    </Button>
+                                                                )}
+                                                            </>
+                                                        )}
+                                                    </Card.Text>
+                                                </Card.Body>
+
+
+
+                                                <Card.Footer className="text-muted d-flex align-items-center justify-content-between" style={{ padding: '1px', paddingLeft: '5%' }}>
+                                                    <div>
+
+                                                        <Card.Link href="#">
+                                                            <div style={{ position: 'relative', display: 'inline-block' }}>
+                                                                <FontAwesomeIcon
+                                                                    size='xl'
+                                                                    icon={isHoveredHeart1[comment._id] ? faHeartSolid : faHeart}
+                                                                    onMouseEnter={() => setIsHoveredHeart1({
+                                                                        ...isHoveredHeart1,
+                                                                        [comment._id]: true // Alterna entre true e false para o postId fornecido
+                                                                    })}
+                                                                    onMouseLeave={() => setIsHoveredHeart1({
+                                                                        ...isHoveredHeart1,
+                                                                        [comment._id]: false // Alterna entre true e false para o postId fornecido
+                                                                    })}
+                                                                    style={{ color: '#ff686b' }}
+                                                                />
+                                                                <Badge bg="secondary CardBadge" style={{ position: 'absolute', top: '-10px', right: '-18px', opacity: '0.7', borderRadius: '50%' }}>
+                                                                    {comment.likes && comment.likes.length}
+                                                                </Badge>
+                                                            </div>
+                                                        </Card.Link>
+                                                    </div>
+                                                    <div style={{ width: '90%', padding: '1px' }}>
+                                                        <Form>
+                                                            <InputGroup>
+                                                                <Form.Control as="textarea" aria-label="With textarea" style={{ resize: 'none', height: '30px' }} placeholder='Responda esse comentario' />
+                                                                <Button variant="primary">
+                                                                    Enviar Resposta
                                                                 </Button>
-                                                            )}
-                                                        </>
-                                                    )}
-                                                </Card.Text>
-                                            </Card.Body>
-
-
-
-                                            <Card.Footer className="text-muted d-flex align-items-center justify-content-between" style={{ padding: '1px', paddingLeft: '5%' }}>
-                                                <div>
-
-                                                    <Card.Link href="#">
-                                                        <div style={{ position: 'relative', display: 'inline-block' }}>
-                                                            <FontAwesomeIcon
-                                                                size='xl'
-                                                                icon={isHoveredHeart1[comment._id] ? faHeartSolid : faHeart}
-                                                                onMouseEnter={() => setIsHoveredHeart1({
-                                                                    ...isHoveredHeart1,
-                                                                    [comment._id]: true // Alterna entre true e false para o postId fornecido
-                                                                })}
-                                                                onMouseLeave={() => setIsHoveredHeart1({
-                                                                    ...isHoveredHeart1,
-                                                                    [comment._id]: false // Alterna entre true e false para o postId fornecido
-                                                                })}
-                                                                style={{ color: '#ff686b' }}
-                                                            />
-                                                            <Badge bg="secondary CardBadge" style={{ position: 'absolute', top: '-10px', right: '-18px', opacity: '0.7', borderRadius: '50%' }}>
-                                                                {comment.likes && comment.likes.length}
-                                                            </Badge>
-                                                        </div>
-                                                    </Card.Link>
-                                                </div>
-                                                <div style={{ width: '90%', padding: '1px' }}>
-                                                    <Form>
-                                                        <InputGroup>
-                                                            <Form.Control as="textarea" aria-label="With textarea" style={{ resize: 'none', height: '30px' }} placeholder='Responda esse comentario' />
-                                                            <Button variant="primary">
-                                                                Enviar Resposta
-                                                            </Button>
-                                                        </InputGroup>
-                                                    </Form>
-                                                </div>
-                                            </Card.Footer>
-                                        </Card>
+                                                            </InputGroup>
+                                                        </Form>
+                                                    </div>
+                                                </Card.Footer>
+                                            </Card>
                                         )}
-                                        
 
+                                        {showComments[element._id]}
                                     </div>
                                 ))}
                                 <div className="d-flex justify-content-end">
@@ -649,18 +612,6 @@ function Principal(props) {
                 <button onClick={() => setPostReceived([])}>
                     Limpar para teste
                 </button>
-
-
-
-
-                {/* <button onClick={getImage}>
-                    Obter Imagem
-                    </button>
-                    {uploadedImageUrl && (
-                    <div className='UploadedImageView'>
-                        <Image src={`http://localhost:8000/post/00bb26a91b61f4d05fcc5576b4c215a9.jpg`} alt="Uploaded Image" style={{ width: '200px' }} />
-                    </div>
-                )} */}
 
 
             </div>
